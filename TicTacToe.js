@@ -18,6 +18,8 @@ const winBoard = {
   },
 };
 
+const winLength = 3;
+
 
 const win = (winner) => {
   console.log(winner);
@@ -52,9 +54,28 @@ const game = (e) => {
         break;
     }
 
-    if (winOption.length === 3 && winOption.every(item => item === sign)) winner = player;
-    if (winCrossOption.cIndex.length === 3 && winCrossOption.rIndex.length === 3 && (winCrossOption.cIndex.reduce((prev, curr) => prev + curr, 0) === winCrossOption.rIndex.reduce((prev, curr) => prev + curr, 0))) winner = player;
-    console.log(winCrossOption.cIndex, winCrossOption.rIndex);
+    if (winOption.length === winLength && winOption.every(item => item === sign)) winner = player;
+    if (winCrossOption.cIndex.length >= winLength && winCrossOption.rIndex.length >= winLength && (winCrossOption.cIndex.length === winCrossOption.rIndex.length)) {
+      const rowIds = [...winCrossOption.rIndex];
+      const colIds = [...winCrossOption.cIndex];
+
+      for (let i = 0; i < winLength; i++) {
+        const partRow = [...new Set(rowIds.slice(i, i + 3))];
+        const partCol = [...new Set(colIds.slice(i, i + 3))];
+
+        if (partRow.length === winLength && partCol.length === winLength) {
+          const rowIdSum = partRow.reduce((prev, curr) => prev + Number(curr), 0);
+          const colIdSum = partCol.reduce((prev, curr) => prev + Number(curr), 0);
+
+          if (rowIdSum === colIdSum) {
+            winner = player;
+            break;
+          }
+        }
+
+      }
+    }
+
   });
 
   player = player === 'playerX' ? 'playerO' : 'playerX';
