@@ -16,7 +16,6 @@ const winBoard = {
     colIndex: [],
     rowIndex: [],
   },
-
 };
 
 
