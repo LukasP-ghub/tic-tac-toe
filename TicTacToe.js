@@ -54,16 +54,23 @@ const isWin = (obj) => {
   for (const coord of coords) {
     const matchUp = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === 1);
     const matchDown = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === -1);
-    if (matchUp) {
-      const secondMatchUp = coords.find((item) => Number(item.col) - Number(matchUp.col) === 1 && Number(matchUp.row) - Number(item.row) === 1);
-      if (secondMatchUp) return true;
-    }
 
-    if (matchDown) {
-      const secondMatchDown = coords.find((item) => Number(item.col) - Number(matchDown.col) === 1 && Number(matchDown.row) - Number(item.row) === -1);
-      if (secondMatchDown) return true;
-    }
+    if (matchUp || matchDown) {
+      let prevUp = matchUp;
+      let prevDown = matchDown;
+      for (let i = 1; i < winLength - 1; i++) {
+        if (prevUp) {
+          const newMatchUp = coords.find((item) => Number(item.col) - Number(prevUp.col) === 1 && Number(prevUp.row) - Number(item.row) === 1);
+          prevUp = newMatchUp;
+        }
 
+        if (prevDown) {
+          const newMatchDown = coords.find((item) => Number(item.col) - Number(prevDown.col) === 1 && Number(prevDown.row) - Number(item.row) === -1);
+          prevDown = newMatchDown;
+        }
+      }
+      if (prevUp || prevDown) return true;
+    }
   }
 
   return false;
