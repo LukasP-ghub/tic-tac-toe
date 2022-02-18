@@ -1,23 +1,16 @@
 const board = document.querySelector('.board');
 
-
-
-
 let player = 'playerX';
 const winBoard = {
-  // r0: [],
-  // r1: [],
-  // r2: [],
-  // c0: [],
-  // c1: [],
-  // c2: [],
-  playerXCross: {
-    cIndex: [],
-    rIndex: [],
+  playerX: {
+    colMap: {},
+    rowMap: {},
+    coords: [],
   },
-  playerOCross: {
-    cIndex: [],
-    rIndex: [],
+  playerO: {
+    colMap: {},
+    rowMap: {},
+    coords: [],
   },
 };
 
@@ -31,8 +24,6 @@ for (let i = 0; i < 5; i++) {
     elem.setAttribute('data-column', j);
     board.append(elem);
   }
-  winBoard[`c${i}`] = [];
-  winBoard[`r${i}`] = [];
 }
 
 const win = (winner) => {
@@ -40,6 +31,43 @@ const win = (winner) => {
   board.removeEventListener('click', handleGame);
 };
 
+const isWin = (obj) => {
+  const coords = [...obj.coords].sort((a, b) => a.col - b.col);
+
+  for (const prop in obj) {
+    const directionMap = obj[prop];
+    for (const key in directionMap) {
+      if (directionMap[key].length >= winLength) {
+        const tempArr = [...directionMap[key]].sort();
+        let isGroup = 0;
+        tempArr.reduce((prev, curr) => {
+          const currNum = Number(curr);
+          const prevNum = Number(prev);
+          (currNum - prevNum === 1 || currNum - prevNum === -1) ? isGroup++ : isGroup = 0;
+          return currNum;
+        });
+        if (isGroup >= winLength - 1) return true;
+      }
+    }
+  }
+
+  for (const coord of coords) {
+    const matchUp = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === 1);
+    const matchDown = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === -1);
+    if (matchUp) {
+      const secondMatchUp = coords.find((item) => Number(item.col) - Number(matchUp.col) === 1 && Number(matchUp.row) - Number(item.row) === 1);
+      if (secondMatchUp) return true;
+    }
+
+    if (matchDown) {
+      const secondMatchDown = coords.find((item) => Number(item.col) - Number(matchDown.col) === 1 && Number(matchDown.row) - Number(item.row) === -1);
+      if (secondMatchDown) return true;
+    }
+
+  }
+
+  return false;
+}
 
 const game = (e) => {
   const box = e.target;
@@ -53,65 +81,16 @@ const game = (e) => {
   const cValue = box.getAttribute('data-column');
   const rValue = box.getAttribute('data-row');
 
-  const coords = [`c${cValue}`, `r${rValue}`];
-  const winCrossOption = winBoard[`${player}Cross`];
+  winBoard[player].colMap[cValue] = winBoard[player].colMap[cValue] ? [...winBoard[player].colMap[cValue], rValue] : [rValue];
+  winBoard[player].rowMap[rValue] = winBoard[player].rowMap[rValue] ? [...winBoard[player].rowMap[rValue], cValue] : [cValue];
+  winBoard[player].coords.push({ col: cValue, row: rValue });
 
-  coords.forEach((coord) => {
-    const winOption = winBoard[coord];
-
-    winOption.push(sign);
-    switch (coord[0]) {
-      case 'c':
-        winCrossOption.cIndex.push(cValue);
-        break;
-      case 'r':
-        winCrossOption.rIndex.push(rValue);
-        break;
-    }
-
-    if (winOption.length === winLength && winOption.every(item => item === sign)) winner = player;
-  });
-
-  if (winCrossOption.cIndex.length >= winLength && winCrossOption.rIndex.length >= winLength && (winCrossOption.cIndex.length === winCrossOption.rIndex.length)) {
-    const rowIds = [...new Set(winCrossOption.rIndex)].sort();
-    const colIds = [...new Set(winCrossOption.cIndex)].sort();
-
-    for (let i = 0; i <= Math.floor(rowIds.length / winLength); i++) {
-      const partRow = rowIds.slice(i, i + winLength);
-      const partCol = colIds.slice(i, i + winLength);
-
-      let flagRow = [];
-      let flagCol = [];
-
-      if (partRow.length === winLength && partCol.length === winLength) {
-        partRow.reduce((prev, curr) => {
-          const currNum = Number(curr);
-          const prevNum = Number(prev);
-
-          (currNum - prevNum === 1 || currNum - prevNum === -1) ? flagRow.push(1) : flagRow.push(0);
-          return currNum;
-        });
-
-        partCol.reduce((prev, curr) => {
-          const currNum = Number(curr);
-          const prevNum = Number(prev);
-
-          (currNum - prevNum === 1 || currNum - prevNum === -1) ? flagCol.push(1) : flagCol.push(0);
-          return currNum;
-        });
-
-
-        if (flagCol.every(item => Number(item) === 1) && flagRow.every(item => Number(item) === 1)) {
-          winner = player;
-          break;
-        }
-      }
-    }
-  }
+  if (isWin(winBoard[player])) winner = player;
 
   player = player === 'playerX' ? 'playerO' : 'playerX';
 
   if (winner) win(winner);
+
 }
 
 const handleGame = (e) => {
