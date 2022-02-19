@@ -4,9 +4,14 @@
   box-sizing: border-box;
 }
 
+:root {
+  --grid-columns-count: 5;
+}
+
+
 .board{
   display: grid;
-  grid-template-columns: repeat(5,60px);
+  grid-template-columns: repeat(var(--grid-columns-count),60px);
   grid-auto-rows: 60px;
   width: 300px;
   height: 300px;

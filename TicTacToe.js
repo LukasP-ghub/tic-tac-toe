@@ -3,13 +3,9 @@ const board = document.querySelector('.board');
 let player = 'playerX';
 const winBoard = {
   playerX: {
-    colMap: {},
-    rowMap: {},
     coords: [],
   },
   playerO: {
-    colMap: {},
-    rowMap: {},
     coords: [],
   },
 };
@@ -34,31 +30,31 @@ const win = (winner) => {
 const isWin = (obj) => {
   const coords = [...obj.coords].sort((a, b) => a.col - b.col);
 
-  for (const prop in obj) {
-    const directionMap = obj[prop];
-    for (const key in directionMap) {
-      if (directionMap[key].length >= winLength) {
-        const tempArr = [...directionMap[key]].sort();
-        let isGroup = 0;
-        tempArr.reduce((prev, curr) => {
-          const currNum = Number(curr);
-          const prevNum = Number(prev);
-          (currNum - prevNum === 1 || currNum - prevNum === -1) ? isGroup++ : isGroup = 0;
-          return currNum;
-        });
-        if (isGroup >= winLength - 1) return true;
-      }
-    }
-  }
-
   for (const coord of coords) {
     const matchUp = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === 1);
     const matchDown = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === -1);
+    const matchRow = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) === Number(item.row));
+    const matchCol = coords.find((item) => Number(item.col) === Number(coord.col) && (Number(coord.row) - Number(item.row) === 1 || Number(coord.row) - Number(item.row) === -1));
 
-    if (matchUp || matchDown) {
+    if (matchUp || matchDown || matchRow || matchCol) {
       let prevUp = matchUp;
       let prevDown = matchDown;
-      for (let i = 1; i < winLength - 1; i++) {
+      let prevInRow = matchRow;
+      let prevInCol = matchCol;
+      const checkedInCol = matchCol ? [Number(matchCol.row), Number(coord.row)] : [];
+
+      for (let i = 2; i < winLength; i++) {
+        if (prevInRow) {
+          const newMatchRow = coords.find((item) => Number(item.col) - Number(prevInRow.col) === 1 && Number(prevInRow.row) === Number(item.row));
+          prevInRow = newMatchRow;
+        }
+
+        if (prevInCol) {
+          const newMatchCol = coords.find((item) => Number(item.col) === Number(prevInCol.col) && (Number(prevInCol.row) - Number(item.row) === 1 || Number(prevInCol.row) - Number(item.row) === -1) && !checkedInCol.includes(Number(item.row)));
+          if (newMatchCol) checkedInCol.push(Number(newMatchCol.row));
+          prevInCol = newMatchCol
+        }
+
         if (prevUp) {
           const newMatchUp = coords.find((item) => Number(item.col) - Number(prevUp.col) === 1 && Number(prevUp.row) - Number(item.row) === 1);
           prevUp = newMatchUp;
@@ -69,7 +65,7 @@ const isWin = (obj) => {
           prevDown = newMatchDown;
         }
       }
-      if (prevUp || prevDown) return true;
+      if (prevUp || prevDown || prevInRow || prevInCol) return true;
     }
   }
 
@@ -79,19 +75,19 @@ const isWin = (obj) => {
 const game = (e) => {
   const box = e.target;
   let winner;
+
   if (!box.classList.contains('box')) return;
   if (box.getAttribute('data-clicked')) return;
 
   const sign = player[player.length - 1];
+
   box.textContent = sign;
   box.setAttribute('data-clicked', true);
+
   const cValue = box.getAttribute('data-column');
   const rValue = box.getAttribute('data-row');
 
-  winBoard[player].colMap[cValue] = winBoard[player].colMap[cValue] ? [...winBoard[player].colMap[cValue], rValue] : [rValue];
-  winBoard[player].rowMap[rValue] = winBoard[player].rowMap[rValue] ? [...winBoard[player].rowMap[rValue], cValue] : [cValue];
   winBoard[player].coords.push({ col: cValue, row: rValue });
-
   if (isWin(winBoard[player])) winner = player;
 
   player = player === 'playerX' ? 'playerO' : 'playerX';
@@ -103,7 +99,5 @@ const game = (e) => {
 const handleGame = (e) => {
   return game(e);
 }
-
-
 
 board.addEventListener('click', handleGame);
