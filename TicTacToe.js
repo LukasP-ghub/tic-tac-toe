@@ -79,9 +79,9 @@ const game = (e) => {
   if (!box.classList.contains('box')) return;
   if (box.getAttribute('data-clicked')) return;
 
-  const sign = player[player.length - 1];
+  const sign = player === 'playerX' ? 'x' : 'o';
 
-  box.textContent = sign;
+  box.classList.add(sign);
   box.setAttribute('data-clicked', true);
 
   const cValue = box.getAttribute('data-column');

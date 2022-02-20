@@ -6,8 +6,17 @@
 
 :root {
   --grid-columns-count: 5;
+  --primary-color: hsla(39, 84%, 75%, 0.904);
+  --secondary-color: hsla(0, 0%, 100%, 0.5);
+  --shadow-color: hsl(0, 0%, 0%, 0.2);
 }
 
+.wrapper{
+  min-width: 100vw;
+  min-height: 100vh;
+  padding-top: 20%;
+  background-color: var(--primary-color);
+}
 
 .board{
   display: grid;
@@ -15,11 +24,40 @@
   grid-auto-rows: 60px;
   width: 300px;
   height: 300px;
-  margin: 200px auto;
+  margin: 0 auto;
+  background-color: var(--secondary-color);
 }
 
 .box{
   display: grid;
   place-items: center;
-  border: 1px solid black;
+  grid-template-areas: 'sign';
+  border:1px solid var(--shadow-color);
+  cursor: pointer;
+}
+
+.x::after, .x::before{
+  grid-area: sign;
+  content: '';
+  width: 5px;
+  height: 100%;
+  background-color: red;
+  transform-origin: center center;
+}
+
+.x::after{
+  transform: rotate(45deg);
+}
+
+.x::before{
+  transform: rotate(-45deg);
+}
+
+.o::after{
+  grid-area: sign;
+  content: '';
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 5px green;
 }
