@@ -1,4 +1,5 @@
 const board = document.querySelector('.board');
+const currPlayer = document.querySelector('.curr-player');
 
 let player = 'playerX';
 const winBoard = {
@@ -12,8 +13,8 @@ const winBoard = {
 
 const winLength = 3;
 
-for (let i = 0; i < 5; i++) {
-  for (let j = 0; j < 5; j++) {
+for (let i = 0; i < 3; i++) {
+  for (let j = 0; j < 3; j++) {
     const elem = document.createElement('div');
     elem.classList.add('box');
     elem.setAttribute('data-row', i);
@@ -80,9 +81,14 @@ const game = (e) => {
   if (box.getAttribute('data-clicked')) return;
 
   const sign = player === 'playerX' ? 'x' : 'o';
+  const nextPlayer = player === 'playerX' ? 'o' : 'x';
+
+  currPlayer.classList.remove(sign);
+  currPlayer.classList.add(nextPlayer);
 
   box.classList.add(sign);
   box.setAttribute('data-clicked', true);
+
 
   const cValue = box.getAttribute('data-column');
   const rValue = box.getAttribute('data-row');

@@ -5,17 +5,45 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&family=Open+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="TicTacToe.js" defer></script>
     <title>Document</title>
   </head>
 
   <body>
-    <div class="wrapper">
+
+    <div class="game-wrapper">
+      <div class="player-turn">
+        <h2>Turn:</h2>
+        <div class="curr-player"></div>
+      </div>
       <div class="board">
       </div>
     </div>
 
+    <div class="start-screen-wrapper">
+      <label class="game-config">
+        Set board size:
+        <input type="number" class="game-config-input" min="3" max="9" value="3">
+      </label>
+
+      <label class="game-config">
+        Set win length:
+        <input type="number" class="game-config-input" min="3" max="9" value="3">
+      </label>
+
+      <button class="play-btn">
+        <span class="play-letter">P</span>
+        <span class="play-letter">l</span>
+        <span class="play-letter">a</span>
+        <span class="play-letter">y</span>
+        <span class="play-letter">!</span>
+      </button>
+    </div>
   </body>
 
 </html>
