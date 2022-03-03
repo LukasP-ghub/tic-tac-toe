@@ -1,1 +1,1 @@
-Simple Tic tac toe game. Alpha version. Work in progress.
+Simple Tic tac toe game.
