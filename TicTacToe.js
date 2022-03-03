@@ -13,15 +13,18 @@ const winBoard = {
 
 let winLength = 3;
 
-
-const win = (winner) => {
+const showModal = (text) => {
   const modal = document.querySelector('[data-modal]');
   const message = document.querySelector('[data-message]');
   const resetBtn = document.querySelector('[data-reset]');
   modal.classList.remove('hide');
-  message.textContent = `${winner} won!`;
+  message.textContent = `${text}`;
   resetBtn.addEventListener('click', () => location.reload());
+}
+
+const win = (winner) => {
   board.removeEventListener('click', handleGame);
+  showModal(`${winner} won!`);
 };
 
 const isWin = (obj) => {
@@ -106,7 +109,8 @@ const startGame = ({ boardSizeInput, winLengthInput, startScreen, gameScreen }) 
   const boardSize = Number(boardSizeInput.value);
   winLength = Number(winLengthInput.value);
 
-  if (isNaN(winLength) || isNaN(boardSize)) throw new Error('Something went wrong');
+  if (isNaN(boardSize) || boardSize > 9 || boardSize < 3) showModal('Board size must be higher or equal 3 and lower than 9.');
+  if (isNaN(winLength) || winLength > boardSize || winLength < 3) showModal('Win length must be higher or equal 3 and lower than board size.');
 
   startScreen.classList.add('hide');
   gameScreen.classList.add('show');
