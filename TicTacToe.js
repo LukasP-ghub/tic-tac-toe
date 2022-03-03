@@ -15,7 +15,12 @@ let winLength = 3;
 
 
 const win = (winner) => {
-  console.log(winner);
+  const modal = document.querySelector('[data-modal]');
+  const message = document.querySelector('[data-message]');
+  const resetBtn = document.querySelector('[data-reset]');
+  modal.classList.remove('hide');
+  message.textContent = `${winner} won!`;
+  resetBtn.addEventListener('click', () => location.reload());
   board.removeEventListener('click', handleGame);
 };
 

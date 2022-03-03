@@ -49,7 +49,7 @@
   background-color: transparent;
 }
 
-.play-btn{
+.play-btn, .reset-btn{
   font-family: 'Coming Soon','Open Sans', sans-serif;
   font-size: 3rem;
   padding: .2em 1em;
@@ -156,6 +156,37 @@
   box-shadow: inset 0 0 0 5px green;
 }
 
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-color: var(--shadow-color);
+}
+
+.modal{
+  width: 300px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--primary-color);
+}
+
+.message{
+  font-family: 'Coming Soon','Open Sans', sans-serif;
+  font-size: 2rem;
+}
+
+.message::first-letter{
+  text-transform: uppercase;
+}
+
+.reset-btn{
+  font-size: 1rem;
+}
 
 .show{
   display:block;
