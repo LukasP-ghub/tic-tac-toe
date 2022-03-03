@@ -11,17 +11,8 @@ const winBoard = {
   },
 };
 
-const winLength = 3;
+let winLength = 3;
 
-for (let i = 0; i < 3; i++) {
-  for (let j = 0; j < 3; j++) {
-    const elem = document.createElement('div');
-    elem.classList.add('box');
-    elem.setAttribute('data-row', i);
-    elem.setAttribute('data-column', j);
-    board.append(elem);
-  }
-}
 
 const win = (winner) => {
   console.log(winner);
@@ -106,4 +97,37 @@ const handleGame = (e) => {
   return game(e);
 }
 
-board.addEventListener('click', handleGame);
+const startGame = ({ boardSizeInput, winLengthInput, startScreen, gameScreen }) => {
+  const boardSize = Number(boardSizeInput.value);
+  winLength = Number(winLengthInput.value);
+
+  if (isNaN(winLength) || isNaN(boardSize)) throw new Error('Something went wrong');
+
+  startScreen.classList.add('hide');
+  gameScreen.classList.add('show');
+  document.documentElement.style.setProperty('--grid-columns-count', boardSize);
+
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      const elem = document.createElement('div');
+      elem.classList.add('box');
+      elem.setAttribute('data-row', i);
+      elem.setAttribute('data-column', j);
+      board.append(elem);
+    }
+  }
+
+  board.addEventListener('click', handleGame);
+}
+
+const handleConfigGame = (startGame) => {
+  const boardSizeInput = document.querySelector('[data-board-size]');
+  const winLengthInput = document.querySelector('[data-win-length]');
+  const playBtn = document.querySelector('[data-play-btn]');
+  const startScreen = document.querySelector('[data-start-screen]');
+  const gameScreen = document.querySelector('[data-game]');
+
+  playBtn.addEventListener('click', () => startGame({ boardSizeInput, winLengthInput, startScreen, gameScreen }));
+}
+
+window.addEventListener('load', () => handleConfigGame(startGame));

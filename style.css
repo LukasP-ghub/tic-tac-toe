@@ -11,14 +11,6 @@
   --shadow-color: hsl(0, 0%, 0%, 0.2);
 }
 
-.show{
-  display:block;
-}
-
-.hide{
-  display: none;
-}
-
 .game-wrapper, .start-screen-wrapper{
   min-width: 100vw;
   min-height: 100vh;
@@ -165,3 +157,10 @@
 }
 
 
+.show{
+  display:block;
+}
+
+.hide{
+  display: none;
+}

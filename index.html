@@ -16,7 +16,7 @@
 
   <body>
 
-    <div class="game-wrapper">
+    <div class="game-wrapper" data-game>
       <div class="player-turn">
         <h2>Turn:</h2>
         <div class="curr-player"></div>
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="start-screen-wrapper">
+    <div class="start-screen-wrapper" data-start-screen>
       <label class="game-config">
         Set board size:
         <input type="number" class="game-config-input" min="3" max="9" value="3" data-board-size>
@@ -36,7 +36,7 @@
         <input type="number" class="game-config-input" min="3" max="9" value="3" data-win-length>
       </label>
 
-      <button class="play-btn">
+      <button class="play-btn" data-play-btn>
         <span class="play-letter">P</span>
         <span class="play-letter">l</span>
         <span class="play-letter">a</span>
