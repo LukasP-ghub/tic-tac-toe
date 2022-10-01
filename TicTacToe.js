@@ -27,6 +27,7 @@ const win = (winner) => {
   showModal(`${winner} won!`);
 };
 
+//chain searching for every direction, 
 const isWin = (obj) => {
   const coords = [...obj.coords].sort((a, b) => a.col - b.col);
 
