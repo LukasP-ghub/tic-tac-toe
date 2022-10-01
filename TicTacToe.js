@@ -12,6 +12,8 @@ const winBoard = {
 };
 
 let winLength = 3;
+let boardFieldsCount = 0;
+let filledBoardFieldsCount = 0;
 
 const showModal = (text) => {
   const modal = document.querySelector('[data-modal]');
@@ -22,9 +24,10 @@ const showModal = (text) => {
   resetBtn.addEventListener('click', () => location.reload());
 }
 
-const win = (winner) => {
+const endGame = (winner) => {
+  const modalMessage = winner ? `${winner} won!` : `Draw!`;
   board.removeEventListener('click', handleGame);
-  showModal(`${winner} won!`);
+  showModal(modalMessage);
 };
 
 //chain searching for every direction, 
@@ -75,7 +78,7 @@ const isWin = (obj) => {
 
 const game = (e) => {
   const box = e.target;
-  let winner;
+  let winner = null;
 
   if (!box.classList.contains('box')) return;
   if (box.getAttribute('data-clicked')) return;
@@ -97,9 +100,9 @@ const game = (e) => {
   if (isWin(winBoard[player])) winner = player;
 
   player = player === 'playerX' ? 'playerO' : 'playerX';
+  filledBoardFieldsCount++;
 
-  if (winner) win(winner);
-
+  if (winner || filledBoardFieldsCount >= boardFieldsCount) endGame(winner);
 }
 
 const handleGame = (e) => {
@@ -109,6 +112,7 @@ const handleGame = (e) => {
 const startGame = ({ boardSizeInput, winLengthInput, startScreen, gameScreen }) => {
   const boardSize = Number(boardSizeInput.value);
   winLength = Number(winLengthInput.value);
+  boardFieldsCount = boardSize ** 2;
 
   if (isNaN(boardSize) || boardSize > 9 || boardSize < 3) showModal('Board size must be higher or equal 3 and lower than 9.');
   if (isNaN(winLength) || winLength > boardSize || winLength < 3) showModal('Win length must be higher or equal 3 and lower than board size.');
