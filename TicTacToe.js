@@ -77,11 +77,11 @@ const isWin = (obj) => {
 }
 
 const game = (e) => {
-  const box = e.target;
+  const boardField = e.target;
   let winner = null;
 
-  if (!box.classList.contains('box')) return;
-  if (box.getAttribute('data-clicked')) return;
+  if (!boardField.classList.contains('box')) return;
+  if (boardField.getAttribute('data-clicked')) return;
 
   const sign = player === 'playerX' ? 'x' : 'o';
   const nextPlayer = player === 'playerX' ? 'o' : 'x';
@@ -89,12 +89,12 @@ const game = (e) => {
   currPlayer.classList.remove(sign);
   currPlayer.classList.add(nextPlayer);
 
-  box.classList.add(sign);
-  box.setAttribute('data-clicked', true);
+  boardField.classList.add(sign);
+  boardField.setAttribute('data-clicked', true);
 
 
-  const cValue = box.getAttribute('data-column');
-  const rValue = box.getAttribute('data-row');
+  const cValue = boardField.getAttribute('data-column');
+  const rValue = boardField.getAttribute('data-row');
 
   winBoard[player].coords.push({ col: cValue, row: rValue });
   if (isWin(winBoard[player])) winner = player;
