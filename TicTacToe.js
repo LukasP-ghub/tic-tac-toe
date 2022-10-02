@@ -1,12 +1,13 @@
 const board = document.querySelector('.board');
 const currPlayer = document.querySelector('.curr-player');
 
-let player = 'playerX';
+const players = ['x', 'o'];
+
 const winBoard = {
-  playerX: {
+  x: {
     coords: [],
   },
-  playerO: {
+  o: {
     coords: [],
   },
 };
@@ -25,7 +26,7 @@ const showModal = (text) => {
 }
 
 const endGame = (winner) => {
-  const modalMessage = winner ? `${winner} won!` : `Draw!`;
+  const modalMessage = winner ? `Player ${winner} win!` : `Draw!`;
   board.removeEventListener('click', handleGame);
   showModal(modalMessage);
 };
@@ -83,26 +84,23 @@ const game = (e) => {
   if (!boardField.classList.contains('box')) return;
   if (boardField.getAttribute('data-clicked')) return;
 
-  const sign = player === 'playerX' ? 'x' : 'o';
-  const nextPlayer = player === 'playerX' ? 'o' : 'x';
+  currPlayer.classList.remove(players[0]);
+  currPlayer.classList.add(players[1]);
 
-  currPlayer.classList.remove(sign);
-  currPlayer.classList.add(nextPlayer);
-
-  boardField.classList.add(sign);
+  boardField.classList.add(players[0]);
   boardField.setAttribute('data-clicked', true);
 
 
   const cValue = boardField.getAttribute('data-column');
   const rValue = boardField.getAttribute('data-row');
 
-  winBoard[player].coords.push({ col: cValue, row: rValue });
-  if (isWin(winBoard[player])) winner = player;
+  winBoard[players[0]].coords.push({ col: cValue, row: rValue });
+  if (isWin(winBoard[players[0]])) winner = players[0];
 
-  player = player === 'playerX' ? 'playerO' : 'playerX';
   filledBoardFieldsCount++;
 
   if (winner || filledBoardFieldsCount >= boardFieldsCount) endGame(winner);
+  players.reverse();
 }
 
 const handleGame = (e) => {
