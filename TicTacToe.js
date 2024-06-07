@@ -2,6 +2,7 @@ const board = document.querySelector('.board');
 const currPlayer = document.querySelector('.curr-player');
 
 const players = ['x', 'o'];
+const aiPlayer = players[Math.round(Math.random())];
 
 const winBoard = {
   x: {
@@ -77,6 +78,47 @@ const isWin = (obj) => {
   return false;
 }
 
+const aiPlayerMove = () => {
+  const emptyFields = [...document.querySelectorAll('.box')].filter((item) => !item.getAttribute('data-clicked'));
+  let bestMove = null
+  let bestMoveScore = 0;
+
+  if (!emptyFields.length) return;
+  if (aiPlayer !== players[0]) return;
+  if (winBoard[aiPlayer].coords.length === 0) {
+    const randomField = emptyFields[Math.floor(Math.random() * emptyFields.length)];
+    return randomField.click();
+  }
+  const aiCoords = [...winBoard[aiPlayer].coords].sort((a, b) => a.col - b.col);
+  // 1 find best move
+  // 1.1 find best move in row
+  // 1.2 find best move in col
+  // 1.3 find best move in diagonal
+  // 1.4 find best move in anti-diagonal
+  // How to find best move?
+  //   1. find longest series of aiPlayer coords
+  //   2. find empty fields around this series
+  //   3. find best move in this empty fields
+  //   4. return best move
+
+
+  //find longest series of aiPlayer coords
+  let longestSeries = [];
+  let tempLongestSeries = [];
+  for (let i = 0; i < aiCoords.length; i++) {
+    const colNum = aiCoords[i]?.col;
+    const nextColNum = aiCoords[i + 1]?.col;
+    tempLongestSeries.push(aiCoords[i]);
+
+    if (!nextColNum || Number(nextColNum) - Number(colNum) !== 1) {
+      if (tempLongestSeries.length > longestSeries.length) {
+        longestSeries = [...tempLongestSeries];
+      }
+      tempLongestSeries = [];
+    }
+  }
+}
+
 const game = (e) => {
   const boardField = e.target;
   let winner = null;
@@ -101,6 +143,7 @@ const game = (e) => {
 
   if (winner || filledBoardFieldsCount >= boardFieldsCount) endGame(winner);
   players.reverse();
+  //if (aiPlayer === players[0]) aiPlayerMove();
 }
 
 const handleGame = (e) => {
@@ -130,6 +173,7 @@ const startGame = ({ boardSizeInput, winLengthInput, startScreen, gameScreen }) 
   }
 
   board.addEventListener('click', handleGame);
+  //if (aiPlayer === 'x') aiPlayerMove();
 }
 
 const handleConfigGame = (startGame) => {
