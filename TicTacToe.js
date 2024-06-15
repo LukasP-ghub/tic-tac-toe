@@ -111,7 +111,10 @@ const aiPlayerMove = () => {
     tempLongestSeries.push(aiCoords[i]);
 
     if (!nextColNum || Number(nextColNum) - Number(colNum) !== 1) {
-      if (tempLongestSeries.length > longestSeries.length) {
+      const prevEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-column')) === Number(tempLongestSeries[0].col) - 1 && Number(item.getAttribute('data-row')) === Number(tempLongestSeries[0].row));
+      const nextEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-column')) === Number(tempLongestSeries[tempLongestSeries.length - 1].col) + 1 && Number(item.getAttribute('data-row')) === Number(tempLongestSeries[tempLongestSeries.length - 1].row));
+
+      if (tempLongestSeries.length > longestSeries.length && (prevEmptyField || nextEmptyField)) {
         longestSeries = [...tempLongestSeries];
       }
       tempLongestSeries = [];
