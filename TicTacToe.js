@@ -7,12 +7,6 @@ const aiPlayer = players[Math.round(Math.random())];
 const winBoard = {
   x: {
     coords: [],
-    mapCoords:{
-      x: [],
-      y: [],
-      diag: [],
-      antiDiag: []
-    }
   },
   o: {
     coords: [],
