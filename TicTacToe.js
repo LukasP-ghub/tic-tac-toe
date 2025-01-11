@@ -94,35 +94,42 @@ const aiPlayerMove = (coords) => {
     const randomField = emptyFields[Math.floor(Math.random() * emptyFields.length)];
     return randomField.click();
   }
-  //const aiCoords = [...winBoard[aiPlayer].coords].sort((a, b) => a.col - b.col);
 
-  const findNextMove = (obj) => {
+  const findNextMove = (obj,emptyFields) => {
     const coords = [...obj.coords].sort((a, b) => a.col - b.col);
-    let probablyBestMove = {
-      row: {
-        chainLength: 0,
-        nextMove: null
-      },
-      col: {
-        chainLength: 0,
-        nextMove: null
-      },
-      diag: {
-        chainLength: 0,
-        nextMove: null
-      },
-      antiDiag: {
-        chainLength: 0,
-        nextMove: null
-      },
-    };
+    let moveChains = [];
 
     for (const coord of coords) {
       const matchAntiDiag = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === 1);
       const matchDiag = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) - Number(item.row) === -1);
       const matchRow = coords.find((item) => Number(item.col) - Number(coord.col) === 1 && Number(coord.row) === Number(item.row));
       const matchCol = coords.find((item) => Number(item.col) === Number(coord.col) && (Number(coord.row) - Number(item.row) === 1 || Number(coord.row) - Number(item.row) === -1));
-  
+      
+      const chainRow = {
+        chainLength: 1,
+        firstMove: coord,
+        lastMove: coord,
+        direction: 'row',      
+      };
+      const chainCol = {
+        chainLength: 1,
+        firstMove: coord,
+        lastMove: coord,
+        direction: 'col',
+      };
+      const chainDiag = {
+        chainLength: 1,
+        firstMove: coord,
+        lastMove: coord,
+        direction: 'diag',
+      };
+      const chainAntiDiag = {
+        chainLength: 1,
+        firstMove: coord,
+        lastMove: coord,
+        direction: 'antiDiag',
+      };
+
       if (matchAntiDiag || matchDiag || matchRow || matchCol) {
         let prevAntiDiag = matchAntiDiag;
         let prevDiag = matchDiag;
@@ -130,216 +137,72 @@ const aiPlayerMove = (coords) => {
         let prevInCol = matchCol;
         const checkedInCol = matchCol ? [Number(matchCol.row), Number(coord.row)] : [];
   
-        for (let i = 2; i < winLength; i++) {
+        for (let i = 1; i < winLength; i++) {
           if (prevInRow) {
+            chainRow.chainLength++;
+            chainRow.lastMove = prevInRow;
             const newMatchRow = coords.find((item) => Number(item.col) - Number(prevInRow.col) === 1 && Number(prevInRow.row) === Number(item.row));
             prevInRow = newMatchRow;
-            
           }
   
           if (prevInCol) {
+            chainCol.chainLength++;
+            chainCol.lastMove = prevInCol;
             const newMatchCol = coords.find((item) => Number(item.col) === Number(prevInCol.col) && (Number(prevInCol.row) - Number(item.row) === 1 || Number(prevInCol.row) - Number(item.row) === -1) && !checkedInCol.includes(Number(item.row)));
             if (newMatchCol) checkedInCol.push(Number(newMatchCol.row));
             prevInCol = newMatchCol
           }
   
           if (prevAntiDiag) {
+            chainAntiDiag.chainLength++;
+            chainAntiDiag.lastMove = prevAntiDiag;
             const newAntiDiag = coords.find((item) => Number(item.col) - Number(prevAntiDiag.col) === 1 && Number(prevAntiDiag.row) - Number(item.row) === 1);
             prevAntiDiag = newAntiDiag;
           }
   
           if (prevDiag) {
+            chainDiag.chainLength++;
+            chainDiag.lastMove = prevDiag;
             const newMatchDiag = coords.find((item) => Number(item.col) - Number(prevDiag.col) === 1 && Number(prevDiag.row) - Number(item.row) === -1);
             prevDiag = newMatchDiag;
           }
         }
-        if (prevAntiDiag || prevDiag || prevInRow || prevInCol) return true;
       }
+      moveChains.push(chainRow, chainCol, chainDiag, chainAntiDiag);
     }
-  
-    return false;
+
+    moveChains.sort((a, b) => b.chainLength - a.chainLength);
+    console.log(moveChains);
+    
+    for (let i = 0; i < moveChains.length; i++) {
+      const chain = moveChains[i];
+      const deltas = {
+        row: [0, 1],
+        col: [1, 0],
+        diag: [1, 1],
+        antiDiag: [1, -1]
+      };
+      const [deltaRow,deltaCol] = deltas[chain.direction];
+      const prevEmptyField = emptyFields.find((item) => 
+        Number(item.getAttribute('data-column')) === Number(chain.firstMove.col) - deltaCol && 
+        Number(item.getAttribute('data-row')) === Number(chain.firstMove.row) - deltaRow
+      );
+      const nextEmptyField = emptyFields.find((item) => 
+        Number(item.getAttribute('data-column')) === Number(chain.lastMove.col) + deltaCol && 
+        Number(item.getAttribute('data-row')) === Number(chain.lastMove.row) + deltaRow
+      );
+      if(prevEmptyField || nextEmptyField) return prevEmptyField || nextEmptyField;
+    }
+    return null;
   }
   
-  // const findEmptyField = (series, direction) => {
-  //   const deltas = {
-  //     row: [0, 1],
-  //     col: [1, 0],
-  //     diag: [1, 1],
-  //     antiDiag: [1, 1]
-  //   };
-
-  //   const [deltaRow,deltaCol] = deltas[direction];
-
-  //   const prevEmptyField = emptyFields.find((item) => 
-  //     Number(item.getAttribute('data-column')) === Number(series[0].col) - deltaCol && 
-  //     Number(item.getAttribute('data-row')) === Number(series[0].row) - deltaRow
-  //   );
-
-  //   const nextEmptyField = emptyFields.find((item) => 
-  //     Number(item.getAttribute('data-column')) === Number(series[series.length - 1].col) + deltaCol && 
-  //     Number(item.getAttribute('data-row')) === Number(series[series.length - 1].row) + deltaRow
-  //   );
-    
-  //   if (prevEmptyField && nextEmptyField)  return Math.random() < 0.5 ? prevEmptyField : nextEmptyField;
-    
-  //   return prevEmptyField || nextEmptyField || null;
-  // };
-
-// function findLongestSeries(moves, direction) {
-//   let longest = [];
-//   let tempSeries = [];
-//   let move = null;
-//   let longestSeries = {
-//     row: [],
-//     col: [],
-//     diag: [],
-//     antiDiag: []
-//   };
-//   let tempLongestSeries = {
-//     row: [],
-//     col: [],
-//     diag: [],
-//     antiDiag: []
-//   };
-
-//   if(!moves.length) return { seriesLength: 0, nextMove: null };
-//   // Assuming moves are sorted, if not, sort them based on direction
-//   moves.forEach((coord, index, arr) => {
-//     const nextCoord = moves[index + 1];
-//     let isConsecutive = false;
-//     tempLongestSeries[direction].push(coord);
-
-//     switch (direction) {
-//       case 'row':
-//         isConsecutive =  arr.find((item)=> Number(item.col) - Number(coord.col) === 1 && Number(item.row) === Number(coord.row)) ;
-//         break;
-//       case 'col':
-//         isConsecutive =  arr.find((item)=> Number(item.row) - Number(coord.row) === 1 && Number(item.col) === Number(coord.col)) ;
-//         break;
-//       case 'diag':
-//         isConsecutive =  arr.find((item)=> Number(item.row) - Number(coord.row) === 1 && Number(item.col) - Number(coord.col) === 1) ;
-//         break;
-//       case 'antiDiag':
-//         isConsecutive =  arr.find((item)=> Number(item.row) - Number(coord.row) === 1 && Number(item.col) - Number(coord.col) === -1) ;
-//         break;
-//     }
-
-//     if(!isConsecutive) {
-//       if (tempLongestSeries[direction].length > longestSeries[direction].length) {
-//         longestSeries[direction] = [...tempLongestSeries[direction]];
-//         move = findEmptyField(tempLongestSeries[direction], direction);
-//         tempLongestSeries[direction] = [];
-//         if (!move) longestSeries[direction] = [];
-//       }
-//     }
-//     //console.log(isConsecutive, direction, coord);
-//     // if (isConsecutive) {
-//     //   tempLongestSeries[direction].push(coord);
-//     // } else if( !nextCoord && arr.length === 1) {
-//     //  // console.log('only one move', coord, direction);
-//     //  longestSeries[direction].push(coord);
-//     //   move = findEmptyField([coord], direction);
-//     //   //console.log('move', move);
-//     // }else{
-//     //   if (tempLongestSeries[direction].length > longestSeries[direction].length) {
-//     //     longestSeries[direction] = [...tempLongestSeries[direction]];
-//     //     // Assuming findEmptyField returns the next potential move
-//     //     move = findEmptyField(tempLongestSeries[direction], direction);
-//     //     tempLongestSeries[direction] = [];
-//     //   }
-//     // }
-//   });
-//   console.log('longestSeries', longestSeries, direction);
-//   return { seriesLength: longestSeries[direction].length, nextMove: move };
-// }
-  // Check in all directions
-  // bestMove = [
-  //   findLongestSeries(aiCoords, 'row'),
-  //   findLongestSeries(aiCoords, 'col'),
-  //   findLongestSeries(aiCoords, 'diag'),
-  //   findLongestSeries(aiCoords, 'antiDiag')
-  // ].reduce((acc, curr) => {
-  //   if (curr.seriesLength > acc.seriesLength) return curr;
-  //   return acc;
-  // }, {seriesLength: 0, nextMove: null}).nextMove;
-// console.log([
-//   findLongestSeries(aiCoords, 'row'),
-//   findLongestSeries(aiCoords, 'col'),
-//   findLongestSeries(aiCoords, 'diag'),
-//   findLongestSeries(aiCoords, 'antiDiag')
-// ]);
-
-  // Perform the best move
+  bestMove = findNextMove(coords,emptyFields);
+  if (bestMove) return bestMove.click();
   
-  //if (bestMove) return bestMove.click();
-
   // Fallback to random move if no best move found
   const randomField = emptyFields[Math.floor(Math.random() * emptyFields.length)];
-  console.log('randomField', randomField);
+ 
   return randomField.click();
-
-
-  // let longestSeries = [];
-  // let tempLongestSeries = [];
-  // const deltas = {
-  //   row: [0, 1],
-  //   col: [1, 0],
-  //   diag: [1, 1],
-  //   antiDiag: [1, -1]
-  // };
-  
-  // for (let i = 0; i < aiCoords.length; i++) {
-  //   const coord = aiCoords[i];
-  //   const nextCoord = aiCoords[i + 1];
-  //   const colNum = coord?.col;
-  //   const rowNum = coord?.row;
-  //   const nextColNum = nextCoord?.col;
-  //   const nextRowNum = nextCoord?.row;
-
-  //   tempLongestSeries.push(aiCoords[i]);
-
-  //   if (!nextColNum || Number(nextColNum) - Number(colNum) !== 1) {
-  //     const prevEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-column')) === Number(tempLongestSeries[0].col) - 1 && Number(item.getAttribute('data-row')) === Number(tempLongestSeries[0].row));
-  //     const nextEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-column')) === Number(tempLongestSeries[tempLongestSeries.length - 1].col) + 1 && Number(item.getAttribute('data-row')) === Number(tempLongestSeries[tempLongestSeries.length - 1].row));
-
-  //     if (tempLongestSeries.length > longestSeries.length && (prevEmptyField || nextEmptyField)) {
-  //       longestSeries = [...tempLongestSeries];
-  //     }
-  //     tempLongestSeries = [];
-  //   }
-
-  //   if (!nextRowNum || Number(nextRowNum) - Number(rowNum) !== 1) {
-  //     const prevEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[0].row) - 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[0].col));
-  //     const nextEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[tempLongestSeries.length - 1].row) + 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[tempLongestSeries.length - 1].col));
-
-  //     if (tempLongestSeries.length > longestSeries.length && (prevEmptyField || nextEmptyField)) {
-  //       longestSeries = [...tempLongestSeries];
-  //     }
-  //     tempLongestSeries = [];
-  //   }
-
-  //   if (!nextColNum || !nextRowNum || Number(nextColNum) - Number(colNum) !== 1 || Number(nextRowNum) - Number(rowNum) !== 1) {
-  //     const prevEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[0].row) - 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[0].col) - 1);
-  //     const nextEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[tempLongestSeries.length - 1].row) + 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[tempLongestSeries.length - 1].col) + 1);
-
-  //     if (tempLongestSeries.length > longestSeries.length && (prevEmptyField || nextEmptyField)) {
-  //       longestSeries = [...tempLongestSeries];
-  //     }
-  //     tempLongestSeries = [];
-  //   }
-
-  //   if (!nextColNum || !nextRowNum || Number(nextColNum) - Number(colNum) !== 1 || Number(nextRowNum) - Number(rowNum) !== -1) {
-  //     const prevEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[0].row) + 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[0].col) - 1);
-  //     const nextEmptyField = emptyFields.find((item) => Number(item.getAttribute('data-row')) === Number(tempLongestSeries[tempLongestSeries.length - 1].row) - 1 && Number(item.getAttribute('data-column')) === Number(tempLongestSeries[tempLongestSeries.length - 1].col) + 1);
-
-  //     if (tempLongestSeries.length > longestSeries.length && (prevEmptyField || nextEmptyField)) {
-  //       longestSeries = [...tempLongestSeries];
-  //     }
-  //     tempLongestSeries = [];
-  //   }
-
-  // }
-
   
 }
 
